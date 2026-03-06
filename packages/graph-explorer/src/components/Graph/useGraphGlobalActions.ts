@@ -87,6 +87,11 @@ export function useGraphGlobalActions() {
   };
 
   const onFitAllToCanvas = () => {
+    if (graphRef?.current?.fitToCanvas) {
+      graphRef.current.fitToCanvas();
+      return;
+    }
+
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -163,6 +168,11 @@ export function useGraphGlobalActions() {
   };
 
   const onSaveScreenshot = () => {
+    if (graphRef?.current?.saveScreenshot) {
+      graphRef.current.saveScreenshot();
+      return;
+    }
+
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -202,6 +212,11 @@ export function useGraphGlobalActions() {
   };
 
   const onZoomIn = () => {
+    if (graphRef?.current?.zoomIn) {
+      graphRef.current.zoomIn();
+      return;
+    }
+
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -215,6 +230,11 @@ export function useGraphGlobalActions() {
   };
 
   const onZoomOut = () => {
+    if (graphRef?.current?.zoomOut) {
+      graphRef.current.zoomOut();
+      return;
+    }
+
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;

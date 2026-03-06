@@ -51,7 +51,14 @@ cyCanvas(cytoscape);
 
 const EMPTY_SET = new Set<string>();
 
-export type GraphRef = { cytoscape?: CytoscapeType; runLayout(): void };
+export type GraphRef = {
+  cytoscape?: CytoscapeType;
+  runLayout(): void;
+  fitToCanvas?(): void;
+  zoomIn?(): void;
+  zoomOut?(): void;
+  saveScreenshot?(): void;
+};
 
 export interface GraphProps<
   TNode extends object = any,
@@ -366,6 +373,68 @@ export const Graph = ({
           return;
         }
         runLayout(cy, layout, additionalLayoutsConfig, true);
+      },
+      fitToCanvas: () => {
+        if (!cy) {
+          return;
+        }
+
+        cy.animate({
+          fit: { eles: cy.elements(), padding: 48 },
+          duration: 150,
+          easing: "ease-in-out-cubic",
+        });
+      },
+      zoomIn: () => {
+        if (!cy) {
+          return;
+        }
+
+        cy.animate({
+          zoom: cy.zoom() + 0.5,
+          duration: 150,
+          easing: "ease-in-out-cubic",
+        });
+      },
+      zoomOut: () => {
+        if (!cy) {
+          return;
+        }
+
+        cy.animate({
+          zoom: cy.zoom() - 0.5,
+          duration: 150,
+          easing: "ease-in-out-cubic",
+        });
+      },
+      saveScreenshot: () => {
+        if (!cy) {
+          return;
+        }
+
+        const canvases = cy.container()?.querySelectorAll("canvas");
+
+        if (!canvases || canvases.length === 0) {
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = canvases[0].width;
+        canvas.height = canvases[0].height;
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          return;
+        }
+
+        canvases.forEach(currentCanvas => {
+          context.drawImage(currentCanvas, 0, 0);
+        });
+
+        const downloadLink = document.createElement("a");
+        downloadLink.href = canvas.toDataURL("image/png", 1);
+        downloadLink.download = `graph-${new Date().getTime()}.png`;
+        downloadLink.click();
       },
     }),
     [additionalLayoutsConfig, cy, layout],

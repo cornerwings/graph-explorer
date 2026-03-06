@@ -178,6 +178,19 @@ docker run -p 80:80 -p 443:443 \
 
 For development guidance, see [Development](./additionaldocs/development.md).
 
+### Optional GPU graph renderer
+
+Graph Explorer can use the GPU-accelerated [`@cosmos.gl/graph`](https://github.com/cosmosgl/graph)
+renderer for the main graph view.
+
+- Set `VITE_GRAPH_RENDERER=cosmos` in the Graph Explorer web app environment.
+- If this variable is not set (or set to anything else), Graph Explorer keeps
+  using the default Cytoscape renderer.
+
+This integration currently focuses on the core canvas rendering and interaction
+path in Graph View, while preserving the existing Cytoscape renderer as the
+default/fallback option.
+
 ## Security
 
 You can use Graph Explorer to connect to a publicly accessible graph database
