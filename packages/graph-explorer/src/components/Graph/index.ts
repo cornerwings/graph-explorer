@@ -11,3 +11,6 @@ export * from "./SelectLayout";
 
 // Export lazy-loaded Graph wrapper to defer loading the cytoscape bundle
 export { default as Graph } from "./LazyGraph";
+
+// Export lazy-loaded CosmosGraph wrapper for GPU-accelerated rendering
+export { default as CosmosGraph } from "./cosmos/LazyCosmosGraph";

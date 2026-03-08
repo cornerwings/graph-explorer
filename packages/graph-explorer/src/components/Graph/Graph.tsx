@@ -51,7 +51,15 @@ cyCanvas(cytoscape);
 
 const EMPTY_SET = new Set<string>();
 
-export type GraphRef = { cytoscape?: CytoscapeType; runLayout(): void };
+export type GraphRef = {
+  cytoscape?: CytoscapeType;
+  cosmos?: unknown;
+  runLayout(): void;
+  fitView?(): void;
+  zoomIn?(): void;
+  zoomOut?(): void;
+  saveScreenshot?(): string | undefined;
+};
 
 export interface GraphProps<
   TNode extends object = any,

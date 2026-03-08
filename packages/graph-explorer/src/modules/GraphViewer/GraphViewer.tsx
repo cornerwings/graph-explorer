@@ -1,5 +1,5 @@
-import { atom, useAtomValue } from "jotai";
-import { BadgeInfoIcon } from "lucide-react";
+import { atom, useAtom, useAtomValue } from "jotai";
+import { BadgeInfoIcon, CpuIcon, ZapIcon } from "lucide-react";
 import {
   Activity,
   type ComponentPropsWithRef,
@@ -22,6 +22,7 @@ import {
 } from "@/components";
 import {
   ClearCanvasButton,
+  CosmosGraph,
   DownloadScreenshotButton,
   Graph,
   GraphProvider,
@@ -61,6 +62,9 @@ import useGraphStyles from "./useGraphStyles";
 import useNodeBadges from "./useNodeBadges";
 
 const graphLayoutSelectionAtom = atom<LayoutName>("F_COSE");
+
+export type GraphRenderer = "cytoscape" | "cosmos";
+const graphRendererAtom = atom<GraphRenderer>("cytoscape");
 
 // Prevent open context menu on Windows
 function onContextMenu(e: MouseEvent<HTMLDivElement>) {
@@ -147,11 +151,14 @@ function GraphViewerContent({
   };
 
   const layout = useAtomValue(graphLayoutSelectionAtom);
+  const [renderer, setRenderer] = useAtom(graphRendererAtom);
 
   const nodes = useRenderedVertices();
   const edges = useRenderedEdges();
 
   const isEmpty = !nodes.length && !edges.length;
+
+  const isCosmos = renderer === "cosmos";
 
   return (
     <div className={cn("size-full min-h-0 grow", className)} {...props}>
@@ -159,13 +166,22 @@ function GraphViewerContent({
         <PanelHeader>
           <PanelTitle>Graph View</PanelTitle>
           <PanelHeaderActions>
-            <SelectLayout
-              className="max-w-64 min-w-auto"
-              layoutAtom={graphLayoutSelectionAtom}
-            />
+            {!isCosmos && (
+              <SelectLayout
+                className="max-w-64 min-w-auto"
+                layoutAtom={graphLayoutSelectionAtom}
+              />
+            )}
             <RerunLayoutButton />
             <ZoomToFitButton />
             <div className="grow" />
+            <RendererToggle
+              renderer={renderer}
+              onToggle={() =>
+                setRenderer(r => (r === "cytoscape" ? "cosmos" : "cytoscape"))
+              }
+            />
+            <PanelHeaderDivider />
             <DownloadScreenshotButton />
             <ExportGraphButton />
             <ImportGraphButton />
@@ -185,25 +201,42 @@ function GraphViewerContent({
           </PanelHeaderActions>
         </PanelHeader>
         <PanelContent className="bg-background-secondary grid" ref={parentRef}>
-          <Graph
-            nodes={nodes}
-            edges={edges}
-            badgesEnabled={false}
-            getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
-            selectedNodesIds={selectedVertices}
-            selectedEdgesIds={selectedEdges}
-            outOfFocusNodesIds={nodesOutRenderedIds}
-            outOfFocusEdgesIds={edgesOutRenderedIds}
-            onSelectedElementIdsChange={onSelectedElementIdsChange}
-            onNodeDoubleClick={onNodeDoubleClick}
-            onNodeRightClick={onNodeRightClick}
-            onEdgeRightClick={onEdgeRightClick}
-            onGraphRightClick={onGraphRightClick}
-            styles={styles}
-            layout={layout}
-            className="col-start-1 row-start-1 min-h-0 min-w-0"
-            onContextMenu={onContextMenu}
-          />
+          {isCosmos ? (
+            <CosmosGraph
+              nodes={nodes}
+              edges={edges}
+              styles={styles as Record<string, Record<string, unknown>>}
+              selectedNodesIds={selectedVertices}
+              onNodeDoubleClick={onNodeDoubleClick}
+              onNodeRightClick={onNodeRightClick}
+              onEdgeRightClick={onEdgeRightClick}
+              onGraphRightClick={onGraphRightClick}
+              outOfFocusNodesIds={nodesOutRenderedIds}
+              outOfFocusEdgesIds={edgesOutRenderedIds}
+              className="col-start-1 row-start-1 min-h-0 min-w-0"
+              onContextMenu={onContextMenu}
+            />
+          ) : (
+            <Graph
+              nodes={nodes}
+              edges={edges}
+              badgesEnabled={false}
+              getNodeBadges={getNodeBadges(nodesOutRenderedIds)}
+              selectedNodesIds={selectedVertices}
+              selectedEdgesIds={selectedEdges}
+              outOfFocusNodesIds={nodesOutRenderedIds}
+              outOfFocusEdgesIds={edgesOutRenderedIds}
+              onSelectedElementIdsChange={onSelectedElementIdsChange}
+              onNodeDoubleClick={onNodeDoubleClick}
+              onNodeRightClick={onNodeRightClick}
+              onEdgeRightClick={onEdgeRightClick}
+              onGraphRightClick={onGraphRightClick}
+              styles={styles}
+              layout={layout}
+              className="col-start-1 row-start-1 min-h-0 min-w-0"
+              onContextMenu={onContextMenu}
+            />
+          )}
           {isContextOpen &&
             renderContextLayer(
               <div
@@ -230,6 +263,30 @@ function GraphViewerContent({
         </PanelContent>
       </Panel>
     </div>
+  );
+}
+
+function RendererToggle({
+  renderer,
+  onToggle,
+}: {
+  renderer: GraphRenderer;
+  onToggle: () => void;
+}) {
+  const isCosmos = renderer === "cosmos";
+  return (
+    <Button
+      tooltip={
+        isCosmos
+          ? "Using GPU renderer (Cosmos)"
+          : "Using CPU renderer (Cytoscape)"
+      }
+      variant={isCosmos ? "primary" : "ghost"}
+      size="icon"
+      onClick={onToggle}
+    >
+      {isCosmos ? <ZapIcon /> : <CpuIcon />}
+    </Button>
   );
 }
 

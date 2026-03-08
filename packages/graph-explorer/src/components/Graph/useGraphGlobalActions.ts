@@ -18,31 +18,29 @@ export function useGraphGlobalActions() {
   const [isZoomOutDisabled, setIsZoomOutDisabled] = useState(false);
 
   useEffect(() => {
+    const cy = graphRef?.current?.cytoscape;
+    if (!cy) return;
+
     const updateFunction = () => {
-      setIsZoomInDisabled(
-        graphRef?.current?.cytoscape?.zoom() ===
-          graphRef?.current?.cytoscape?.maxZoom(),
-      );
-      setIsZoomOutDisabled(
-        graphRef?.current?.cytoscape?.zoom() ===
-          graphRef?.current?.cytoscape?.minZoom(),
-      );
+      setIsZoomInDisabled(cy.zoom() === cy.maxZoom());
+      setIsZoomOutDisabled(cy.zoom() === cy.minZoom());
     };
     // Call to set values on initialization
     updateFunction();
 
-    const cy = graphRef?.current?.cytoscape;
-    if (cy) {
-      cy.on("zoom", updateFunction);
-      return () => {
-        cy.off("zoom", updateFunction);
-      };
-    }
+    cy.on("zoom", updateFunction);
+    return () => {
+      cy.off("zoom", updateFunction);
+    };
     // graphRef is a reference that doesn't change but cytoscape can
     //eslint-disable-next-line
   }, [graphRef?.current?.cytoscape]);
 
   const onFitSelectionToCanvas = () => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -57,6 +55,10 @@ export function useGraphGlobalActions() {
   };
 
   const onFitVertexToCanvas = (vertexId: VertexId) => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -72,6 +74,10 @@ export function useGraphGlobalActions() {
   };
 
   const onFitEdgeToCanvas = (edgeId: EdgeId) => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -87,6 +93,10 @@ export function useGraphGlobalActions() {
   };
 
   const onFitAllToCanvas = () => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -100,6 +110,10 @@ export function useGraphGlobalActions() {
   };
 
   const onCenterGraph = () => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -116,6 +130,10 @@ export function useGraphGlobalActions() {
   };
 
   const onCenterVertex = (vertexId: VertexId) => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -131,6 +149,10 @@ export function useGraphGlobalActions() {
   };
 
   const onCenterEdge = (edgeId: EdgeId) => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -150,6 +172,10 @@ export function useGraphGlobalActions() {
   };
 
   const onCenterEntireGraph = () => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.fitView?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -163,6 +189,14 @@ export function useGraphGlobalActions() {
   };
 
   const onSaveScreenshot = () => {
+    if (graphRef?.current?.cosmos) {
+      const dataUrl = graphRef?.current?.saveScreenshot?.();
+      if (dataUrl) {
+        saveAs(dataUrl, `graph-${new Date().getTime()}.png`);
+      }
+      return;
+    }
+
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -202,6 +236,10 @@ export function useGraphGlobalActions() {
   };
 
   const onZoomIn = () => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.zoomIn?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
@@ -215,6 +253,10 @@ export function useGraphGlobalActions() {
   };
 
   const onZoomOut = () => {
+    if (graphRef?.current?.cosmos) {
+      graphRef?.current?.zoomOut?.();
+      return;
+    }
     const cy = graphRef?.current?.cytoscape;
     if (!cy) {
       return;
